@@ -28,15 +28,15 @@ export default function CardPage({ params }: { params: { id: string } }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-xl font-semibold text-black">Loading card details...</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl font-semibold text-green-400">Loading card details...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-xl font-semibold text-red-600">Error: {error}</div>
       </div>
     );
@@ -44,16 +44,16 @@ export default function CardPage({ params }: { params: { id: string } }) {
 
   if (!card) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-xl font-semibold text-black">Card not found</div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-xl font-semibold text-white">Card not found</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen py-12 bg-white">
+    <main className="min-h-screen py-12">
       <div className="container mx-auto px-4">
-        <h1 className="text-4xl font-bold text-black text-center mb-8">
+        <h1 className="text-4xl font-bold text-green-400 text-center mb-8">
           {card.name}
         </h1>
         <PokeWahCard card={card} />

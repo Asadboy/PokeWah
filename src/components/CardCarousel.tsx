@@ -40,7 +40,7 @@ export default function CardCarousel() {
   if (loading) {
     return (
       <div className="w-full max-w-6xl mx-auto px-4 h-96 flex items-center justify-center">
-        <div className="text-xl text-purple-600">Loading Pokémon cards...</div>
+        <div className="text-xl text-green-400">Loading Pokémon cards...</div>
       </div>
     );
   }
@@ -69,17 +69,17 @@ export default function CardCarousel() {
         ]}
         className="w-full"
       >
-        <CarouselContent className="-ml-2 md:-ml-4">
+        <CarouselContent className="-ml-2 md:-ml-4 bg-transparent">
           {cards.map((card) => (
             <CarouselItem key={card.id} className="pl-2 md:pl-4 md:basis-1/3">
               <Link href={`/card/${card.id}`} className="block h-full">
-                <Card className="border-0 transition-transform duration-200 hover:scale-105 h-full flex flex-col relative">
-                  <CardContent className="relative flex-grow p-0">
+                <Card className="border-0 transition-transform duration-200 hover:scale-105 h-full flex flex-col relative bg-transparent">
+                  <CardContent className="relative flex-grow p-0 bg-transparent">
                     {/* Main card container that mimics the reference design */}
                     <div className="w-full h-full bg-gray-900 rounded-xl overflow-hidden flex flex-col">
-                      {/* Card Image Section - Larger and centered */}
-                      <div className="relative w-full aspect-[2/3] p-4 flex items-center justify-center">
-                        <div className="relative w-5/6 h-5/6">
+                      {/* Card Image Section - with 5% margin */}
+                      <div className="relative w-full aspect-[2/3] p-[5%] flex items-center justify-center">
+                        <div className="relative w-full h-full">
                           <Image
                             src={card.images.small}
                             alt={card.name}
@@ -123,12 +123,12 @@ export default function CardCarousel() {
                           </div>
                         </div>
 
-                        {/* Market price overlay - positioned at the top right */}
+                        {/* Market price overlay - positioned at the top right with 50% larger size */}
                         {card.cardmarket && (
-                          <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-green-400 p-1 rounded-md text-xs">
-                            <div className="flex items-center">
+                          <div className="absolute top-2 right-2 bg-black bg-opacity-75 text-green-400 p-2 rounded-md">
+                            <div className="flex items-center font-bold text-xl">
                               <span className="mr-1">€</span>
-                              <span className="font-bold">{card.cardmarket.prices.averageSellPrice.toFixed(2)}</span>
+                              <span>{card.cardmarket.prices.averageSellPrice.toFixed(2)}</span>
                             </div>
                           </div>
                         )}
@@ -152,8 +152,8 @@ export default function CardCarousel() {
             </CarouselItem>
           ))}
         </CarouselContent>
-        <CarouselPrevious className="hidden md:flex" />
-        <CarouselNext className="hidden md:flex" />
+        <CarouselPrevious className="hidden md:flex bg-gray-800 border-gray-700 text-white hover:bg-gray-700 hover:text-green-400" />
+        <CarouselNext className="hidden md:flex bg-gray-800 border-gray-700 text-white hover:bg-gray-700 hover:text-green-400" />
       </Carousel>
       
       {/* Add custom styles for the code-like formatting */}
