@@ -1,0 +1,124 @@
+UI Designer Perspective
+Overall Look & Feel:
+
+Theme & Aesthetic:
+
+Use a modern, minimalistic design that subtly nods to Pokémon with playful yet clean elements.
+
+A color palette inspired by Pokémon card borders (e.g., vibrant accent colors balanced with neutral backgrounds) to make images and prices stand out.
+
+Typography:
+
+Bold, easy-to-read fonts for headings (e.g., “Most Expensive Hit of the Week”) and clean sans-serif fonts for body text.
+
+Consistent sizing hierarchy to emphasize key information like card prices and names.
+
+Layout & Components:
+
+Carousel Component:
+
+A central carousel that displays three Pokémon card “hits” at a time.
+
+Smooth sliding animation that shifts one card every 5 seconds.
+
+Each card will include a high-quality image, name, price overlay, and subtle drop-shadow or border for separation.
+
+Include navigation dots or subtle arrows to indicate position and allow manual control if needed.
+
+Highlights Section:
+
+Separate panels on the homepage to show “Most Expensive Hit of the Week” and “Worst Hit of the Week.”
+
+These panels can have a slightly different style (e.g., a highlighted border or distinct background) to draw attention.
+
+Future Enhancements:
+
+Reserve space for an interactive poll component.
+
+Design a dynamic section to reflect real-time updates from a Discord bot trigger, possibly with a “Latest Hit” ticker.
+
+Responsive & Interactive Design:
+
+Responsiveness:
+
+Use Tailwind CSS to build a mobile-friendly interface ensuring that the carousel and highlight sections adapt to various screen sizes.
+
+Interactive Feedback:
+
+Incorporate subtle hover effects and transitions to enhance user engagement.
+
+Ensure accessibility with clear focus states, legible text contrasts, and keyboard navigability.
+
+Lead Developer Perspective
+Tech Stack & Architecture:
+
+Frontend:
+
+Use Next.js with React for server-side rendering and dynamic routing.
+
+Leverage Tailwind CSS to rapidly style components and achieve a responsive design.
+
+Backend & Data Management:
+
+Use Supabase as the open-source backend/database store to persist card data and weekly hit statistics.
+
+Store card data (e.g., card ID, name, image URL, price, hit categorization) in structured tables for fast retrieval.
+
+Deployment & Version Control:
+
+Host on Vercel for optimized Next.js deployments.
+
+Maintain the codebase in a GitHub repository with CI/CD pipelines for streamlined updates.
+
+API Integrations & Data Flow:
+
+Pokémon Card Data:
+
+Integrate with a reliable Pokémon TCG API (for example, Pokémon TCG API) to fetch card details.
+
+Maintain an array of Pokémon card objects in the frontend that gets updated either on page load or via scheduled API calls.
+
+Pricing Data:
+
+Look into integrating with the TCG Player API to retrieve up-to-date card pricing.
+
+Cross-reference data between the Pokémon TCG API and TCG Player API to enrich the card objects with price information.
+
+Dynamic Updates & Discord Bot Integration:
+
+Create Next.js API routes that the Discord bot can hit (e.g., via a simple endpoint like /api/updateHit/[cardId]).
+
+Use WebSockets or Server-Sent Events for real-time updates on the PokeWah site when a new card “hit” is reported via Discord.
+
+Carousel Implementation:
+
+Develop a React component that accepts the sorted array of card objects.
+
+Use state and the useEffect hook to handle automatic sliding every 5 seconds.
+
+Ensure smooth animations and proper cleanup to avoid memory leaks.
+
+Performance & Security Considerations:
+
+Cache API responses where applicable to reduce load times.
+
+Secure sensitive API keys using environment variables.
+
+Optimize image loading with lazy loading techniques and use Next.js image optimization.
+
+Additional Developer Considerations:
+
+Error Handling & Logging:
+
+Implement robust error handling on API routes and incorporate logging for debugging purposes.
+
+Testing & CI/CD:
+
+Write unit and integration tests for key components (carousel, API endpoints).
+
+Utilize GitHub Actions to run tests and deploy automatically to Vercel.
+
+Scalability:
+
+Architect the backend (Supabase and API integrations) to handle potential spikes in traffic or rapid updates from the Discord bot.
+
