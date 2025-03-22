@@ -1,5 +1,5 @@
 'use client';
-
+//Commented out for now because it's not needed
 import { useEffect, useState } from 'react';
 import { PokemonCard, fetchCardWithMetrics } from '@/lib/pokemonApi';
 import PokeWahCard from '@/components/PokeWahCard';
