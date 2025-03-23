@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { PokemonCard, fetchCardWithMetrics } from '@/lib/pokemonApi';
-import { Pokemon, supabase } from '@/lib/supabase';
+import { Pokemon, supabase, fetchEnhancedPokemonCard } from '@/lib/supabase';
 import Link from 'next/link';
 
 export default function CardDetailPage({ params }: { params: { id: string } }) {
@@ -31,9 +31,30 @@ export default function CardDetailPage({ params }: { params: { id: string } }) {
           setDbCard(dbPokemon as Pokemon);
         }
         
-        // Then get the complete data from the API
+        // Try to get card using enhanced fetching methods that use multiple strategies
+        try {
+          // First try the enhanced approach from supabase.ts
+          console.log(`Attempting to fetch card ${params.id} with enhanced method first`);
+          const enhancedCard = await fetchEnhancedPokemonCard(params.id);
+          
+          if (enhancedCard) {
+            console.log(`Successfully found card ${params.id} using enhanced method`);
+            setCard(enhancedCard as PokemonCard);
+            return;
+          }
+        } catch (enhancedError) {
+          console.log(`Enhanced card fetch failed, falling back to API method:`, enhancedError);
+        }
+        
+        // Fall back to the regular API method
+        console.log(`Falling back to regular API method for card ${params.id}`);
         const apiCard = await fetchCardWithMetrics(params.id);
-        setCard(apiCard);
+        
+        if (apiCard) {
+          setCard(apiCard);
+        } else {
+          throw new Error(`Could not find card with ID: ${params.id}`);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load card');
         console.error('Error loading card:', err);

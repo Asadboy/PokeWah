@@ -36,6 +36,9 @@ interface UserPokemonRelation {
   };
 }
 
+// API Key for Pokemon TCG API
+const POKEMON_TCG_API_KEY = '7dec1d59-c044-41a9-8095-4327671c55c9';
+
 export default function CardCarousel() {
   const [cards, setCards] = useState<ExtendedPokemonCard[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,7 +103,13 @@ export default function CardCarousel() {
               continue;
             }
             
-            const response = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`);
+            // Fetch card using the Pokemon TCG API with authorization header
+            const response = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`, {
+              headers: {
+                'X-Api-Key': POKEMON_TCG_API_KEY
+              }
+            });
+            
             if (response.ok) {
               const data = await response.json();
               if (data && data.data) {
@@ -110,6 +119,39 @@ export default function CardCarousel() {
                   owner: username || "Unknown",
                   acquired: new Date(acquiredDate).toLocaleDateString()
                 });
+              }
+            } else {
+              console.log(`Card ${cardId} not found directly, trying name search...`);
+              
+              // Get set ID from the card_id (e.g., "sv5" from "sv5-197")
+              const setId = cardId.split('-')[0];
+              
+              // Extract card name from our database
+              const cardName = relation.pokemon.name;
+              
+              // Try searching by name and set
+              const nameSearchURL = `https://api.pokemontcg.io/v2/cards?q=name:"${cardName}" set.id:${setId}`;
+              const nameSearchResponse = await fetch(nameSearchURL, {
+                headers: {
+                  'X-Api-Key': POKEMON_TCG_API_KEY
+                }
+              });
+              
+              if (nameSearchResponse.ok) {
+                const nameSearchData = await nameSearchResponse.json();
+                if (nameSearchData.data && nameSearchData.data.length > 0) {
+                  console.log(`Found card by name search: ${cardName}`);
+                  // Use the first matching card
+                  cardDetails.push({
+                    ...nameSearchData.data[0],
+                    owner: username || "Unknown",
+                    acquired: new Date(acquiredDate).toLocaleDateString()
+                  });
+                } else {
+                  console.error(`No cards found with name search for: ${cardName}`);
+                }
+              } else {
+                console.error(`Name search failed for card: ${cardName}`);
               }
             }
           } catch (error) {

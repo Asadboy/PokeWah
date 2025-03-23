@@ -46,24 +46,90 @@ export interface PokemonCard {
 // API base URL
 const API_BASE_URL = 'https://api.pokemontcg.io/v2';
 
+// Pokemon TCG API Key
+const POKEMON_TCG_API_KEY = '7dec1d59-c044-41a9-8095-4327671c55c9';
+
 // Function to fetch a complete card by ID with all metrics
 export async function fetchCardWithMetrics(id: string): Promise<PokemonCard> {
   try {
+    // First try direct API approach with API key
     const response = await fetch(
-      `${API_BASE_URL}/cards/${id}?select=id,name,number,images,artist,rarity,nationalPokedexNumbers,releaseDate,cardmarket`
+      `${API_BASE_URL}/cards/${id}`,
+      {
+        headers: {
+          'X-Api-Key': POKEMON_TCG_API_KEY
+        }
+      }
     );
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (response.ok) {
+      const data = await response.json();
+      
+      if (data.data) {
+        console.log(`✅ Found card directly with ID ${id}`);
+        return data.data;
+      }
     }
-
-    const data = await response.json();
     
-    if (!data.data) {
-      throw new Error(`No card found with id: ${id}`);
+    console.log(`❌ Direct lookup failed for ${id}, trying alternative strategies...`);
+    
+    // Extract set ID from the card_id (e.g., "sv5" from "sv5-197")
+    const [setId, cardNumber] = id.split('-');
+    
+    if (!setId || !cardNumber) {
+      throw new Error(`Invalid card ID format: ${id}`);
     }
-
-    return data.data;
+    
+    // Strategy 2: Search by set ID and card number
+    const numberSearchURL = `${API_BASE_URL}/cards?q=number:${cardNumber} set.id:${setId}`;
+    const numberSearchResponse = await fetch(numberSearchURL, {
+      headers: {
+        'X-Api-Key': POKEMON_TCG_API_KEY
+      }
+    });
+    
+    if (numberSearchResponse.ok) {
+      const numberSearchData = await numberSearchResponse.json();
+      if (numberSearchData.data && numberSearchData.data.length > 0) {
+        console.log(`✅ Found card by number search: ${cardNumber} in set ${setId}`);
+        return numberSearchData.data[0];
+      }
+    }
+    
+    // Strategy 3: Try searching cards in the set
+    console.log(`❌ Number search failed, scanning entire set ${setId}...`);
+    const setCardsURL = `${API_BASE_URL}/cards?q=set.id:${setId}&pageSize=250`;
+    
+    const setCardsResponse = await fetch(setCardsURL, {
+      headers: {
+        'X-Api-Key': POKEMON_TCG_API_KEY
+      }
+    });
+    
+    if (setCardsResponse.ok) {
+      const setCardsData = await setCardsResponse.json();
+      
+      // First try exact number match
+      const foundCard = setCardsData.data.find((card: PokemonCard) => card.number === cardNumber);
+      if (foundCard) {
+        console.log(`✅ Found card in set scan by exact number match: ${cardNumber}`);
+        return foundCard;
+      }
+      
+      // Look for any card that might have this number in some form
+      const possibleMatches = setCardsData.data.filter((card: PokemonCard) => 
+        card.number.includes(cardNumber) || 
+        card.id.includes(id)
+      );
+      
+      if (possibleMatches.length > 0) {
+        console.log(`✅ Found similar card by number pattern: ${possibleMatches[0].number}`);
+        return possibleMatches[0]; 
+      }
+    }
+    
+    // If all strategies failed, throw error
+    throw new Error(`No card found with id: ${id} after trying multiple strategies`);
   } catch (error) {
     console.error('Error fetching card:', error);
     throw error;
@@ -75,7 +141,12 @@ export async function fetchRandomCards(count: number = 12): Promise<PokemonCard[
   try {
     // First, fetch Drowzee
     const drowzeeResponse = await fetch(
-      `${API_BASE_URL}/cards?q=name:"drowzee"&pageSize=1`
+      `${API_BASE_URL}/cards?q=name:"drowzee"&pageSize=1`,
+      {
+        headers: {
+          'X-Api-Key': POKEMON_TCG_API_KEY
+        }
+      }
     );
 
     if (!drowzeeResponse.ok) {
@@ -87,7 +158,12 @@ export async function fetchRandomCards(count: number = 12): Promise<PokemonCard[
 
     // Then fetch random cards
     const randomResponse = await fetch(
-      `${API_BASE_URL}/cards?q=supertype:pokemon&pageSize=${count - 1}&orderBy=random`
+      `${API_BASE_URL}/cards?q=supertype:pokemon&pageSize=${count - 1}&orderBy=random`,
+      {
+        headers: {
+          'X-Api-Key': POKEMON_TCG_API_KEY
+        }
+      }
     );
 
     if (!randomResponse.ok) {
@@ -117,7 +193,12 @@ export async function fetchCardByName(name: string): Promise<PokemonCard> {
   try {
     // Construct the query URL with the card name
     const response = await fetch(
-      `${API_BASE_URL}/cards?q=name:"${encodeURIComponent(name)}"&pageSize=1`
+      `${API_BASE_URL}/cards?q=name:"${encodeURIComponent(name)}"&pageSize=1`,
+      {
+        headers: {
+          'X-Api-Key': POKEMON_TCG_API_KEY
+        }
+      }
     );
 
     if (!response.ok) {

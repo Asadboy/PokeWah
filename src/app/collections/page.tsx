@@ -1,4 +1,4 @@
-import UserCollection from '@/components/UserCollection';
+import PreloadedCacheUserCollection from '@/components/PreloadedCacheUserCollection';
 
 export default function CollectionsPage() {
   return (
@@ -7,7 +7,7 @@ export default function CollectionsPage() {
         <h1 className="text-4xl font-bold text-green-400 text-center mb-8">
           Pokémon Collections
         </h1>
-        <UserCollection />
+        <PreloadedCacheUserCollection />
       </div>
     </main>
   );

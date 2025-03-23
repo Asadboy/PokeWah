@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getAllUsersWithPokemon, User, UserPokemon } from '@/lib/supabase';
+import { getAllUsersWithPokemon, User, UserPokemon, POKEMON_TCG_API_KEY } from '@/lib/supabase';
 
 type UserWithPokemon = User & {
   user_pokemon: UserPokemon[];
@@ -13,6 +13,7 @@ export default function UserCollection() {
   const [users, setUsers] = useState<UserWithPokemon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cardImages, setCardImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function loadUsers() {
@@ -20,6 +21,61 @@ export default function UserCollection() {
         setLoading(true);
         const data = await getAllUsersWithPokemon();
         setUsers(data as UserWithPokemon[]);
+
+        // Extract all unique card IDs
+        const cardIds = new Set<string>();
+        data.forEach(user => {
+          user.user_pokemon.forEach((item: UserPokemon) => {
+            if (item.pokemon?.card_id) {
+              cardIds.add(item.pokemon.card_id);
+            }
+          });
+        });
+
+        // Fetch enhanced card images for each card
+        const images: Record<string, string> = {};
+        
+        for (const cardId of Array.from(cardIds)) {
+          try {
+            // First try direct API approach
+            const response = await fetch(`https://api.pokemontcg.io/v2/cards/${cardId}`, {
+              headers: {
+                'X-Api-Key': POKEMON_TCG_API_KEY
+              }
+            });
+            
+            if (response.ok) {
+              const data = await response.json();
+              if (data.data?.images?.small) {
+                images[cardId] = data.data.images.small;
+                continue;
+              }
+            }
+            
+            // If direct approach fails, try extracting set ID and number
+            const [setId, cardNumber] = cardId.split('-');
+            if (setId && cardNumber) {
+              // Try searching by number and set
+              const numberSearchURL = `https://api.pokemontcg.io/v2/cards?q=number:${cardNumber} set.id:${setId}`;
+              const numberSearchResponse = await fetch(numberSearchURL, {
+                headers: {
+                  'X-Api-Key': POKEMON_TCG_API_KEY
+                }
+              });
+              
+              if (numberSearchResponse.ok) {
+                const numberSearchData = await numberSearchResponse.json();
+                if (numberSearchData.data && numberSearchData.data.length > 0) {
+                  images[cardId] = numberSearchData.data[0].images.small;
+                }
+              }
+            }
+          } catch (error) {
+            console.error(`Error fetching card image for ${cardId}:`, error);
+          }
+        }
+        
+        setCardImages(images);
       } catch (err) {
         setError('Failed to load user collections');
         console.error(err);
@@ -68,7 +124,11 @@ export default function UserCollection() {
                   >
                     <div className="aspect-square relative mb-2">
                       <Image
-                        src={item.pokemon?.image_url || '/placeholder-pokemon.png'}
+                        src={
+                          (item.pokemon?.card_id && cardImages[item.pokemon.card_id]) || 
+                          item.pokemon?.image_url || 
+                          '/placeholder-pokemon.png'
+                        }
                         alt={item.pokemon?.name || 'Unknown Pokémon'}
                         fill
                         className="object-contain"
