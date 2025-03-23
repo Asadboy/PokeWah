@@ -1,22 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PokeWah
+
+Pokemon Card Explorer with user collections powered by Supabase.
 
 ## Getting Started
 
-First, run the development server:
+First, install the dependencies:
+
+```bash
+npm install
+# or
+yarn install
+```
+
+## Setting up Supabase
+
+1. Create a new project on [Supabase](https://supabase.com/)
+2. Get your project URL and anon key from the project settings
+3. Create a `.env.local` file in the root directory with the following variables:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+4. Execute the database schema. You can copy and paste the contents of `supabase/schema.sql` into the SQL editor in the Supabase dashboard.
+
+5. Initialize the database with sample data:
+
+```bash
+npm run init-db
+```
+
+This will create the necessary tables and populate them with sample data for two users (Asad and Karwah) and their respective Pokémon collections.
+
+## Run the development server
 
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Features
+
+- View Pokémon card carousel on the homepage
+- View user collections on the collections page
+- Click on a Pokémon card to see detailed information
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

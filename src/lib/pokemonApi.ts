@@ -28,6 +28,15 @@ export interface PokemonCard {
       reverseHoloTrend: number;
     };
   };
+  // Card set information
+  set?: {
+    id: string;
+    name: string;
+    series: string;
+    printedTotal?: number;
+    total?: number;
+    releaseDate?: string;
+  };
   // Add missing properties from CardDisplay
   types?: string[];
   hp?: string;
